@@ -3,7 +3,6 @@
   app.Player = function Player(playerData){
     var data = playerData || {};
     this.inventory = data.inventory || {};
-    this.discoveredItems = data.discoveredItems || [];
     this.playerName = data.playerName || "Anonymous";
     this.currentLocation = app.map[0] || "Lost in time and space";
   };
@@ -17,19 +16,7 @@
         return "You wonder what the " + theItems[0].descriptor[0] + " could be combined with.";
       return true;
     },
-    //Todo: Make a universal itemMatch function
-    hasItem:function(whichItem, container){
-      var haystack = app.fn.flattenArray(container);
-      console.log(haystack);
-      var numItems = haystack.length;
-      for (var i = 0; i < numItems; i++) {
-        if (whichItem.descriptor[0] === haystack[i].descriptor[0]) {
-          return true;
-        }else{
-          return false;
-        }
-      }
-    },
+    
     look:function(theItem, room){
       // general vision check
       if (room.ambientLight <= 0) 
@@ -110,17 +97,16 @@
       //destroy item
     },
     checkInventory:function(player){
-          var numItems = player.inventory.length;
-          if (numItems>0){
-            var foundItems = 'You have:<br />';
-            for (var i = 0; i < numItems; i++) {
-              foundItems +=  player.inventory[i].descriptor[0] +'<br />';
-            }
-            return foundItems;
-          }else{
-            return 'You have nothing on your person.';
-          }
-        
+      var numItems = player.inventory.length;
+      if (numItems>0){
+        var foundItems = 'You have:<br />';
+        for (var i = 0; i < numItems; i++) {
+          foundItems +=  player.inventory[i].descriptor[0] +'<br />';
+        }
+        return foundItems;
+      }else{
+        return 'You have nothing on your person.';
+      }        
     },
     search:function(theItem, room){
       if (theItem.length >= 2){
@@ -143,8 +129,21 @@
         return 'You grope around in the ' + item.descriptor[0] + ', but find nothing.';
       }
     },
+    //Todo: Make a universal itemMatch function
+    hasItem:function(whichItem, container){
+      var haystack = app.fn.flattenArray(container);
+      var numItems = haystack.length;
+      for (var i = 0; i < numItems; i++) {
+        if (whichItem.descriptor[0] === haystack[i].descriptor[0]) {
+          return true;
+        }
+      }
+      return false;
+    },
     //Take should only work on items you don't have
     take:function(theItem, room){
+      //at this point we know the item is in the room or in your inventory
+
       if (theItem.length >= 2){
         return 'You fumble around and end up with nothing.';
       }
@@ -152,29 +151,17 @@
       if (item.isStationary){
         return 'You don\'t think that is possible.';
       }
+      //we could check to see if the item is in your inventory if not it has to be in the room but it might not be accessible or known. So we have to check if it's a known item.
       if (this.hasItem(item, this.inventory)){
         return 'You already have the ' + item.descriptor[0];
       }
-      var taken = '',
-          index = '';
-      
-      for (i=0;i<room.containedItems.length; i++){
-        if (item === room.containedItems[i]){
-          index = room.containedItems.indexOf(item);
-          room.containedItems.splice(index, 1);
-          this.inventory.push(item);
-          taken += item.descriptor[0];
-          return item.getting || 'You take the: <br>' + taken;
-        }
+      var itemContainer = app.fn.getItemContainer(room, item);
+      console.log(itemContainer);
+      if (itemContainer){
+        itemContainer.containedItems.splice(itemContainer.containedItems.indexOf(item), 1);
+        this.inventory.push(item);
+        return item.getting || 'You take the: <br>' + item.descriptor[0];
       }
-      // numItems = room.containedItems.length;
-      // for (j=0; j<numItems; j++){
-      //   index = room.containedItems[j].containedItems.indexOf(item);
-      //   room.containedItems[j].containedItems.splice(index, 1);
-      //   this.inventory.push(item);
-      //   taken += item.descriptor[0];
-      //   return item.getting || 'You take the: <br>' + taken;
-      // }
     },
     drop:function(theItem, room){
       if (theItem.length >= 2){

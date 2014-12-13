@@ -8,6 +8,10 @@
       descriptor : ["flint"],
       combineWith : "stone"
     });
+    items.flint2 = new app.Item({
+      descriptor : ["flint2"],
+      combineWith : "stone"
+    });
     items.stick = new app.Item({
       descriptor : ["stick"]
     });
@@ -56,6 +60,18 @@
       tastes : "It tastes like keroseen!",
       smells : "The puddle smells like something you would remove paint with."
     });
+    items.puddle2 = new app.Item({
+      isStationary : true,
+      descriptor : ["puddle2"],
+      isContainer : true,
+      containedItems : [items.flint2],
+      visualSecretThreshold : 6,
+      sightDescription : "Rings of light ripple out from the center as drops fall into it from above.",
+      visualSecret : "As you look closer you can see that there is some depth to it!",
+      sounds : "The only sounds are those of the liquid dripping into it.",
+      tastes : "It tastes like keroseen!",
+      smells : "The puddle smells like something you would remove paint with."
+    });
     items.capris = new app.Item({
       descriptor : ["capris", "pants"],
       sightDescription : "Hemmed right above the calve, they'll make anybody wearing them look like an idiot.",
@@ -74,13 +90,13 @@
     var currentRoom = new app.Room({
       descriptor : ["room","cell","area","here"],
       ambientLight : 10,
-      containedItems : [items.puddle, items.sword],
+      containedItems : [items.puddle, items.sword, items.puddle2],
       visualSecretThreshold : 5,
-      visualSecret : "There is some writing on the wall. Scratched into the stone, it reads. RDA was here.",
+      visualSecret : "There is some writing on the wall. Scratched into the stone, it reads: He who is valiant and pure of spirit, may find the holy grail in the castle of... aaaaaauuuuggghh",
       sightDescription : "You are in a small 10'x10' room with roughly hewn stone walls joined together flawlessly without mortar. The floor is of the same material but larger and smoother tiles. There are no obvious exits except for a large iron door.",
-      sounds : "drip... drip... drip... The dripping noise is slow and even. It sounds as though droplets are falling into a small puddle nearby, close enough to reach out and touch.",
+      sounds : "drip... drip... drip... The dripping noise is slow and even. It sounds as though droplets are falling into a small puddle nearby.",
       touch : "It's cool where you are. You feel solid and cold stone beneath your feet.",
-      smells : "You sniff the air and are assaulted with the smell of decay and hint of lamp oil."
+      smells : "You smell something that reminds you of lamp oil."
     });
     // var room2 = new app.Room({
     //   descriptor : ["room2"],

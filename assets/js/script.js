@@ -4,7 +4,7 @@
  * Copyright (c) 2014-2014, John Woolschlager
  * http://woolschlager.com/
  *
- * Compiled: 2014-12-05
+ * Compiled: 2014-12-13
  *
  */
 (function(window,$){
@@ -72,38 +72,91 @@ app.fn = {
     }
     return pushItems(container);
   },
-  getPathTo: function(container, item){
-    var pathto = [];
-    function drill(container, item){
-      //console.log(container +" "+ item)
-      if (container.length > 0){
-        var numItems = container.length,
-            itemPath = [];
-        for (var i = 0; i < numItems; i++) {
-          pathto.push(container.indexOf(container[i]));
-          console.log(container[i].descriptor[0] + " " + pathto);
-          if (item.descriptor[0] == container[i].descriptor[0]){
-            console.log("fuck yeah");
-            itemPath = pathto;
-            break;
-          }else if (container[i].isContainer) {
-            drill(container[i].containedItems, item);
-          }
-          pathto.pop();
+  // getPathTo: function(container, item){
+  //   var pathto = [];
+  //   function drill(container, item){
+  //     //console.log(container +" "+ item)
+  //     if (container.length > 0){
+  //       var numItems = container.length,
+  //           itemPath = [];
+  //       for (var i = 0; i < numItems; i++) {
+  //         pathto.push(container.indexOf(container[i]));
+  //         // console.log(container[i].descriptor[0] + " " + pathto);
+  //         if (item.descriptor[0] == container[i].descriptor[0]){
+  //           // console.log("fuck yeah");
+  //           itemPath = pathto;
+  //           break;
+  //         }else if (container[i].isContainer) {
+  //           drill(container[i].containedItems, item);
+  //         }
+  //         pathto.pop();
+  //       }
+  //       console.log(itemPath);
+  //       return itemPath;
+  //     }else{
+  //       return pathto;
+  //     }
+  //   }
+  //   //console.log(item);
+  //   return drill(container, item);
+  // },
+  //interesting function don't know if it will be usefull for anything
+  getPathTo: function(container, item, path){
+    var itemFound = false;
+    
+    function drill(container, item, path){
+      if(!path){ path = [];}
+      for(var i=0; i<container.length; i++){
+        //look at the current item
+        if (item.descriptor[0] == container[i].descriptor[0]){ //check for a match in the
+          itemFound = true;
+          return path;
         }
-        return itemPath;
+        //check if the current item is a rabbit hole
+        if(container[i].containedItems.length > 0){
+          path.push(container.indexOf(container[i]));//leave a breadcrumb
+          drill(container[i].containedItems, item, path); //go down the rabbit hole 
+        }
+      }
+      //If it exits the loop with out finding the item or another hole climb out and remove the crumb
+      if (!itemFound){
+        path.pop();
+        return path;
       }else{
-        return pathto;
+        return path;
       }
     }
-    //console.log(item);
-    return drill(container, item);
+
+    return drill(container, item, path);
+  },
+  getItemContainer: function(container, item, itemFound){
+    if(!parent){parent = container;}
+    if(!itemFound){itemFound = false;}
+    for(var i=0; i<container.containedItems.length; i++){
+      if (itemFound){
+        break;
+      }
+
+      if (item.descriptor[0] == container.containedItems[i].descriptor[0]){
+        //found the item what's it parent?
+        parent = container;
+        itemFound = true;
+        break;
+
+      }
+      if(container.containedItems[i].containedItems.length > 0){
+        app.fn.getItemContainer(container.containedItems[i], item);
+      }
+    }
+    return parent;
+
   },
   flattenArray: function(a, r){
     if(!r){ r = [];}
     for(var i=0; i<a.length; i++){
-      if(a[i].constructor == Array){
-        flattenArrayOfArrays(a[i], r);
+      if(a[i].containedItems.length > 0){
+        r.push(a[i]);
+        app.fn.flattenArray(a[i].containedItems, r);
       }else{
         r.push(a[i]);
       }
@@ -181,7 +234,6 @@ app.Item.prototype = {
   app.Player = function Player(playerData){
     var data = playerData || {};
     this.inventory = data.inventory || {};
-    this.discoveredItems = data.discoveredItems || [];
     this.playerName = data.playerName || "Anonymous";
     this.currentLocation = app.map[0] || "Lost in time and space";
   };
@@ -195,19 +247,7 @@ app.Item.prototype = {
         return "You wonder what the " + theItems[0].descriptor[0] + " could be combined with.";
       return true;
     },
-    //Todo: Make a universal itemMatch function
-    hasItem:function(whichItem, container){
-      var haystack = app.fn.flattenArray(container);
-      console.log(haystack);
-      var numItems = haystack.length;
-      for (var i = 0; i < numItems; i++) {
-        if (whichItem.descriptor[0] === haystack[i].descriptor[0]) {
-          return true;
-        }else{
-          return false;
-        }
-      }
-    },
+    
     look:function(theItem, room){
       // general vision check
       if (room.ambientLight <= 0) 
@@ -288,17 +328,16 @@ app.Item.prototype = {
       //destroy item
     },
     checkInventory:function(player){
-          var numItems = player.inventory.length;
-          if (numItems>0){
-            var foundItems = 'You have:<br />';
-            for (var i = 0; i < numItems; i++) {
-              foundItems +=  player.inventory[i].descriptor[0] +'<br />';
-            }
-            return foundItems;
-          }else{
-            return 'You have nothing on your person.';
-          }
-        
+      var numItems = player.inventory.length;
+      if (numItems>0){
+        var foundItems = 'You have:<br />';
+        for (var i = 0; i < numItems; i++) {
+          foundItems +=  player.inventory[i].descriptor[0] +'<br />';
+        }
+        return foundItems;
+      }else{
+        return 'You have nothing on your person.';
+      }        
     },
     search:function(theItem, room){
       if (theItem.length >= 2){
@@ -321,8 +360,21 @@ app.Item.prototype = {
         return 'You grope around in the ' + item.descriptor[0] + ', but find nothing.';
       }
     },
+    //Todo: Make a universal itemMatch function
+    hasItem:function(whichItem, container){
+      var haystack = app.fn.flattenArray(container);
+      var numItems = haystack.length;
+      for (var i = 0; i < numItems; i++) {
+        if (whichItem.descriptor[0] === haystack[i].descriptor[0]) {
+          return true;
+        }
+      }
+      return false;
+    },
     //Take should only work on items you don't have
     take:function(theItem, room){
+      //at this point we know the item is in the room or in your inventory
+
       if (theItem.length >= 2){
         return 'You fumble around and end up with nothing.';
       }
@@ -330,29 +382,17 @@ app.Item.prototype = {
       if (item.isStationary){
         return 'You don\'t think that is possible.';
       }
+      //we could check to see if the item is in your inventory if not it has to be in the room but it might not be accessible or known. So we have to check if it's a known item.
       if (this.hasItem(item, this.inventory)){
         return 'You already have the ' + item.descriptor[0];
       }
-      var taken = '',
-          index = '';
-      
-      for (i=0;i<room.containedItems.length; i++){
-        if (item === room.containedItems[i]){
-          index = room.containedItems.indexOf(item);
-          room.containedItems.splice(index, 1);
-          this.inventory.push(item);
-          taken += item.descriptor[0];
-          return item.getting || 'You take the: <br>' + taken;
-        }
+      var itemContainer = app.fn.getItemContainer(room, item);
+      console.log(itemContainer);
+      if (itemContainer){
+        itemContainer.containedItems.splice(itemContainer.containedItems.indexOf(item), 1);
+        this.inventory.push(item);
+        return item.getting || 'You take the: <br>' + item.descriptor[0];
       }
-      // numItems = room.containedItems.length;
-      // for (j=0; j<numItems; j++){
-      //   index = room.containedItems[j].containedItems.indexOf(item);
-      //   room.containedItems[j].containedItems.splice(index, 1);
-      //   this.inventory.push(item);
-      //   taken += item.descriptor[0];
-      //   return item.getting || 'You take the: <br>' + taken;
-      // }
     },
     drop:function(theItem, room){
       if (theItem.length >= 2){
@@ -488,6 +528,10 @@ app.Room.prototype = new app.Item({
       descriptor : ["flint"],
       combineWith : "stone"
     });
+    items.flint2 = new app.Item({
+      descriptor : ["flint2"],
+      combineWith : "stone"
+    });
     items.stick = new app.Item({
       descriptor : ["stick"]
     });
@@ -536,6 +580,18 @@ app.Room.prototype = new app.Item({
       tastes : "It tastes like keroseen!",
       smells : "The puddle smells like something you would remove paint with."
     });
+    items.puddle2 = new app.Item({
+      isStationary : true,
+      descriptor : ["puddle2"],
+      isContainer : true,
+      containedItems : [items.flint2],
+      visualSecretThreshold : 6,
+      sightDescription : "Rings of light ripple out from the center as drops fall into it from above.",
+      visualSecret : "As you look closer you can see that there is some depth to it!",
+      sounds : "The only sounds are those of the liquid dripping into it.",
+      tastes : "It tastes like keroseen!",
+      smells : "The puddle smells like something you would remove paint with."
+    });
     items.capris = new app.Item({
       descriptor : ["capris", "pants"],
       sightDescription : "Hemmed right above the calve, they'll make anybody wearing them look like an idiot.",
@@ -554,13 +610,13 @@ app.Room.prototype = new app.Item({
     var currentRoom = new app.Room({
       descriptor : ["room","cell","area","here"],
       ambientLight : 10,
-      containedItems : [items.puddle, items.sword],
+      containedItems : [items.puddle, items.sword, items.puddle2],
       visualSecretThreshold : 5,
-      visualSecret : "There is some writing on the wall. Scratched into the stone, it reads. RDA was here.",
+      visualSecret : "There is some writing on the wall. Scratched into the stone, it reads: He who is valiant and pure of spirit, may find the holy grail in the castle of... aaaaaauuuuggghh",
       sightDescription : "You are in a small 10'x10' room with roughly hewn stone walls joined together flawlessly without mortar. The floor is of the same material but larger and smoother tiles. There are no obvious exits except for a large iron door.",
-      sounds : "drip... drip... drip... The dripping noise is slow and even. It sounds as though droplets are falling into a small puddle nearby, close enough to reach out and touch.",
+      sounds : "drip... drip... drip... The dripping noise is slow and even. It sounds as though droplets are falling into a small puddle nearby.",
       touch : "It's cool where you are. You feel solid and cold stone beneath your feet.",
-      smells : "You sniff the air and are assaulted with the smell of decay and hint of lamp oil."
+      smells : "You smell something that reminds you of lamp oil."
     });
     // var room2 = new app.Room({
     //   descriptor : ["room2"],

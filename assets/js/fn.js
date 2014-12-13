@@ -36,38 +36,91 @@ app.fn = {
     }
     return pushItems(container);
   },
-  getPathTo: function(container, item){
-    var pathto = [];
-    function drill(container, item){
-      //console.log(container +" "+ item)
-      if (container.length > 0){
-        var numItems = container.length,
-            itemPath = [];
-        for (var i = 0; i < numItems; i++) {
-          pathto.push(container.indexOf(container[i]));
-          console.log(container[i].descriptor[0] + " " + pathto);
-          if (item.descriptor[0] == container[i].descriptor[0]){
-            console.log("fuck yeah");
-            itemPath = pathto;
-            break;
-          }else if (container[i].isContainer) {
-            drill(container[i].containedItems, item);
-          }
-          pathto.pop();
+  // getPathTo: function(container, item){
+  //   var pathto = [];
+  //   function drill(container, item){
+  //     //console.log(container +" "+ item)
+  //     if (container.length > 0){
+  //       var numItems = container.length,
+  //           itemPath = [];
+  //       for (var i = 0; i < numItems; i++) {
+  //         pathto.push(container.indexOf(container[i]));
+  //         // console.log(container[i].descriptor[0] + " " + pathto);
+  //         if (item.descriptor[0] == container[i].descriptor[0]){
+  //           // console.log("fuck yeah");
+  //           itemPath = pathto;
+  //           break;
+  //         }else if (container[i].isContainer) {
+  //           drill(container[i].containedItems, item);
+  //         }
+  //         pathto.pop();
+  //       }
+  //       console.log(itemPath);
+  //       return itemPath;
+  //     }else{
+  //       return pathto;
+  //     }
+  //   }
+  //   //console.log(item);
+  //   return drill(container, item);
+  // },
+  //interesting function don't know if it will be usefull for anything
+  getPathTo: function(container, item, path){
+    var itemFound = false;
+    
+    function drill(container, item, path){
+      if(!path){ path = [];}
+      for(var i=0; i<container.length; i++){
+        //look at the current item
+        if (item.descriptor[0] == container[i].descriptor[0]){ //check for a match in the
+          itemFound = true;
+          return path;
         }
-        return itemPath;
+        //check if the current item is a rabbit hole
+        if(container[i].containedItems.length > 0){
+          path.push(container.indexOf(container[i]));//leave a breadcrumb
+          drill(container[i].containedItems, item, path); //go down the rabbit hole 
+        }
+      }
+      //If it exits the loop with out finding the item or another hole climb out and remove the crumb
+      if (!itemFound){
+        path.pop();
+        return path;
       }else{
-        return pathto;
+        return path;
       }
     }
-    //console.log(item);
-    return drill(container, item);
+
+    return drill(container, item, path);
+  },
+  getItemContainer: function(container, item, itemFound){
+    if(!parent){parent = container;}
+    if(!itemFound){itemFound = false;}
+    for(var i=0; i<container.containedItems.length; i++){
+      if (itemFound){
+        break;
+      }
+
+      if (item.descriptor[0] == container.containedItems[i].descriptor[0]){
+        //found the item what's it parent?
+        parent = container;
+        itemFound = true;
+        break;
+
+      }
+      if(container.containedItems[i].containedItems.length > 0){
+        app.fn.getItemContainer(container.containedItems[i], item);
+      }
+    }
+    return parent;
+
   },
   flattenArray: function(a, r){
     if(!r){ r = [];}
     for(var i=0; i<a.length; i++){
-      if(a[i].constructor == Array){
-        flattenArrayOfArrays(a[i], r);
+      if(a[i].containedItems.length > 0){
+        r.push(a[i]);
+        app.fn.flattenArray(a[i].containedItems, r);
       }else{
         r.push(a[i]);
       }
