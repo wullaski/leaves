@@ -2,7 +2,7 @@
 //Player class
   app.Player = function Player(playerData){
     var data = playerData || {};
-    this.inventory = data.inventory || {};
+    this.containedItems = data.containedItems || {};
     this.playerName = data.playerName || "Anonymous";
     this.currentLocation = app.map[0] || "Lost in time and space";
   };
@@ -79,11 +79,11 @@
               itemComprisedOf = libraryItem.comprisedOf.sort().join(),
               theseItems = theItems.sort().join();
           if (itemComprisedOf == theseItems){
-            this.inventory.push(libraryItem);
-            var index1 = this.inventory.indexOf(theItems[0]);
-            this.inventory.splice(index1, 1);
-            var index2 = this.inventory.indexOf(theItems[1]);
-            this.inventory.splice(index2, 1);
+            this.containedItems.push(libraryItem);
+            var index1 = this.containedItems.indexOf(theItems[0]);
+            this.containedItems.splice(index1, 1);
+            var index2 = this.containedItems.indexOf(theItems[1]);
+            this.containedItems.splice(index2, 1);
             return "you made a item";
           }
         }
@@ -97,11 +97,11 @@
       //destroy item
     },
     checkInventory:function(player){
-      var numItems = player.inventory.length;
+      var numItems = player.containedItems.length;
       if (numItems>0){
         var foundItems = 'You have:<br />';
         for (var i = 0; i < numItems; i++) {
-          foundItems +=  player.inventory[i].descriptor[0] +'<br />';
+          foundItems +=  player.containedItems[i].descriptor[0] +'<br />';
         }
         return foundItems;
       }else{
@@ -152,14 +152,14 @@
         return 'You don\'t think that is possible.';
       }
       //we could check to see if the item is in your inventory if not it has to be in the room but it might not be accessible or known. So we have to check if it's a known item.
-      if (this.hasItem(item, this.inventory)){
+      if (this.hasItem(item, this.containedItems)){
         return 'You already have the ' + item.descriptor[0];
       }
       var itemContainer = app.fn.getItemContainer(room, item);
       console.log(itemContainer);
       if (itemContainer){
         itemContainer.containedItems.splice(itemContainer.containedItems.indexOf(item), 1);
-        this.inventory.push(item);
+        this.containedItems.push(item);
         return item.getting || 'You take the: <br>' + item.descriptor[0];
       }
     },
@@ -169,11 +169,13 @@
       }
       var dropped = '',      
           item = theItem[0];
-      if (!this.hasItem(item, this.inventory)){
+      if (!this.hasItem(item, this.containedItems)){
         return 'You can\'t drop something you don\'t have';
       }
-      var index = this.inventory.indexOf(item);
-      this.inventory.splice(index, 1);
+      var itemContainer = app.fn.getItemContainer(this, item);
+      // var index = this.containedItems.indexOf(item);
+      // this.containedItems.splice(index, 1);
+      itemContainer.containedItems.splice(itemContainer.containedItems.indexOf(item), 1);
       room.containedItems.push(item);
       return 'You drop the: <br>' + item.descriptor[0];
 
@@ -196,18 +198,18 @@
         return "The second item is not a container.";
       }
       
-      var path = app.fn.getPathTo(this.inventory, item);
+      var path = app.fn.getPathTo(this.containedItems, item);
         console.log(path);
 
       // if (this.hasItem(item)){
-      //   this.inventory + path
+      //   this.containedItems + path
       //   playerItems.splice(index, 1);
         //console.log(app.fn.getDeepIndex);
        
           
         
             //if (itemIndexInfo[0] === 0)
-            //itemParent = this.inventory[itemIndexInfo[0]],
+            //itemParent = this.containedItems[itemIndexInfo[0]],
             //itemIndex = itemIndexInfo[1];
 
         //itemParent.splice(itemIndex, 1);

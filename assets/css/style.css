@@ -45,6 +45,9 @@ body {
 .noun_hint {
   color: #144c6e;
 }
+.user-cmd {
+  color: #b16828;
+}
 p {
   padding-right: 10%;
 }

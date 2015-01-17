@@ -8,10 +8,6 @@
       descriptor : ["flint"],
       combineWith : "stone"
     });
-    items.flint2 = new app.Item({
-      descriptor : ["flint2"],
-      combineWith : "stone"
-    });
     items.stick = new app.Item({
       descriptor : ["stick"]
     });
@@ -41,7 +37,7 @@
     items.bag2 = new app.Item({
       isContainer : true,
       descriptor : ["bag2"],
-      containedItems : [items.rune, items.pouch]
+      containedItems : [items.rune]
     });
     items.bag = new app.Item({
       isContainer : true,
@@ -52,19 +48,7 @@
       isStationary : true,
       descriptor : ["puddle"],
       isContainer : true,
-      containedItems : [items.flint, items.steel, items.stone],
-      visualSecretThreshold : 6,
-      sightDescription : "Rings of light ripple out from the center as drops fall into it from above.",
-      visualSecret : "As you look closer you can see that there is some depth to it!",
-      sounds : "The only sounds are those of the liquid dripping into it.",
-      tastes : "It tastes like keroseen!",
-      smells : "The puddle smells like something you would remove paint with."
-    });
-    items.puddle2 = new app.Item({
-      isStationary : true,
-      descriptor : ["puddle2"],
-      isContainer : true,
-      containedItems : [items.flint2],
+      containedItems : [items.flint, items.steel, items.stone, items.pouch],
       visualSecretThreshold : 6,
       sightDescription : "Rings of light ripple out from the center as drops fall into it from above.",
       visualSecret : "As you look closer you can see that there is some depth to it!",
@@ -90,7 +74,7 @@
     var currentRoom = new app.Room({
       descriptor : ["room","cell","area","here"],
       ambientLight : 10,
-      containedItems : [items.puddle, items.sword, items.puddle2],
+      containedItems : [items.puddle, items.sword],
       visualSecretThreshold : 5,
       visualSecret : "There is some writing on the wall. Scratched into the stone, it reads: He who is valiant and pure of spirit, may find the holy grail in the castle of... aaaaaauuuuggghh",
       sightDescription : "You are in a small 10'x10' room with roughly hewn stone walls joined together flawlessly without mortar. The floor is of the same material but larger and smoother tiles. There are no obvious exits except for a large iron door.",
@@ -107,7 +91,7 @@
     var currentPlayer = new app.Player(
       {
         playerName : "You",
-        inventory : [items.bag2, items.capris, items.bag]
+        containedItems : [items.bag2, items.capris, items.bag]
       }
     );
   //Testing function
@@ -119,12 +103,12 @@
         buttonNode = $("#hidden-button");
 
     //read function
-    var read = function(value){
+    var read = function(userCmd){
       var dict = {
         'help' : '<p>All you have are your senses (<span class="verb_hint">look, listen, feel, smell, taste)</span><br />Example Commands:<br /><span class="verb_hint">look</span> <span class="noun_hint">puddle</span> <br /><span class="verb_hint">listen</span><br /><em>Enter commands below.</em></p>',
         'save' : '<p>Your progress has been saved in the imperial scrolls of honor... not really, but soon. Consider it hardcore mode!</p>',
       };
-      var str = value.toLowerCase(),
+      var str = userCmd.toLowerCase(),
           words = str.split(" ");
       if (words[0] == "save") {
         textNode.append(dict.save);
@@ -136,6 +120,7 @@
       }else if (words.length >= 1){
         //have the player process the complete command
         narration = comprehend(words, currentRoom);
+        textNode.append('<p class="user-cmd">' + userCmd + '</p>');
         textNode.append('<p>' + narration + '</p>');
       }
     };
@@ -159,7 +144,7 @@
         }
       }
       //// Set a couple very useful variables here
-      var playerItems = app.fn.getNestedItems(currentPlayer.inventory),
+      var playerItems = app.fn.getNestedItems(currentPlayer.containedItems),
           roomItems = app.fn.getNestedItems(currentRoom.containedItems);
           //console.log(roomItems)
           //console.log(playerItems)
@@ -202,10 +187,11 @@
     //Run a function when user hits enter
     inputNode.on("keyup",function(event){
       if(event.keyCode === 13){
-        var value = $(this).val();
-        if (value !== ''){
+        var userCmd = $(this).val();
+        if (userCmd !== ''){
           //run the read funtion
-          read(value);
+          read(userCmd);
+          //clear the input
           this.value = '';
         }else{
           textNode.append("Sometimes the best course of action is to take no action, but that's not the case here.");

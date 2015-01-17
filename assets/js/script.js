@@ -1,10 +1,10 @@
 /**
  * @license
  * Leaves - v0.0.0
- * Copyright (c) 2014-2014, John Woolschlager
+ * Copyright (c) 2014-2015, John Woolschlager
  * http://woolschlager.com/
  *
- * Compiled: 2014-12-13
+ * Compiled: 2015-01-17
  *
  */
 (function(window,$){
@@ -61,6 +61,7 @@ app.fn = {
           //pathto.push(container.indexOf(container[i]))
           //console.log(container[i].descriptor[0] + " ")
           items.push(container[i]);
+          console.log(container[i].descriptor[0]);
           if (container[i].isContainer) {
             pushItems(container[i].containedItems);
           }
@@ -72,35 +73,6 @@ app.fn = {
     }
     return pushItems(container);
   },
-  // getPathTo: function(container, item){
-  //   var pathto = [];
-  //   function drill(container, item){
-  //     //console.log(container +" "+ item)
-  //     if (container.length > 0){
-  //       var numItems = container.length,
-  //           itemPath = [];
-  //       for (var i = 0; i < numItems; i++) {
-  //         pathto.push(container.indexOf(container[i]));
-  //         // console.log(container[i].descriptor[0] + " " + pathto);
-  //         if (item.descriptor[0] == container[i].descriptor[0]){
-  //           // console.log("fuck yeah");
-  //           itemPath = pathto;
-  //           break;
-  //         }else if (container[i].isContainer) {
-  //           drill(container[i].containedItems, item);
-  //         }
-  //         pathto.pop();
-  //       }
-  //       console.log(itemPath);
-  //       return itemPath;
-  //     }else{
-  //       return pathto;
-  //     }
-  //   }
-  //   //console.log(item);
-  //   return drill(container, item);
-  // },
-  //interesting function don't know if it will be usefull for anything
   getPathTo: function(container, item, path){
     var itemFound = false;
     
@@ -136,20 +108,17 @@ app.fn = {
       if (itemFound){
         break;
       }
-
       if (item.descriptor[0] == container.containedItems[i].descriptor[0]){
         //found the item what's it parent?
         parent = container;
         itemFound = true;
         break;
-
       }
       if(container.containedItems[i].containedItems.length > 0){
         app.fn.getItemContainer(container.containedItems[i], item);
       }
     }
     return parent;
-
   },
   flattenArray: function(a, r){
     if(!r){ r = [];}
@@ -233,7 +202,7 @@ app.Item.prototype = {
 //Player class
   app.Player = function Player(playerData){
     var data = playerData || {};
-    this.inventory = data.inventory || {};
+    this.containedItems = data.containedItems || {};
     this.playerName = data.playerName || "Anonymous";
     this.currentLocation = app.map[0] || "Lost in time and space";
   };
@@ -310,11 +279,11 @@ app.Item.prototype = {
               itemComprisedOf = libraryItem.comprisedOf.sort().join(),
               theseItems = theItems.sort().join();
           if (itemComprisedOf == theseItems){
-            this.inventory.push(libraryItem);
-            var index1 = this.inventory.indexOf(theItems[0]);
-            this.inventory.splice(index1, 1);
-            var index2 = this.inventory.indexOf(theItems[1]);
-            this.inventory.splice(index2, 1);
+            this.containedItems.push(libraryItem);
+            var index1 = this.containedItems.indexOf(theItems[0]);
+            this.containedItems.splice(index1, 1);
+            var index2 = this.containedItems.indexOf(theItems[1]);
+            this.containedItems.splice(index2, 1);
             return "you made a item";
           }
         }
@@ -328,11 +297,11 @@ app.Item.prototype = {
       //destroy item
     },
     checkInventory:function(player){
-      var numItems = player.inventory.length;
+      var numItems = player.containedItems.length;
       if (numItems>0){
         var foundItems = 'You have:<br />';
         for (var i = 0; i < numItems; i++) {
-          foundItems +=  player.inventory[i].descriptor[0] +'<br />';
+          foundItems +=  player.containedItems[i].descriptor[0] +'<br />';
         }
         return foundItems;
       }else{
@@ -383,14 +352,14 @@ app.Item.prototype = {
         return 'You don\'t think that is possible.';
       }
       //we could check to see if the item is in your inventory if not it has to be in the room but it might not be accessible or known. So we have to check if it's a known item.
-      if (this.hasItem(item, this.inventory)){
+      if (this.hasItem(item, this.containedItems)){
         return 'You already have the ' + item.descriptor[0];
       }
       var itemContainer = app.fn.getItemContainer(room, item);
       console.log(itemContainer);
       if (itemContainer){
         itemContainer.containedItems.splice(itemContainer.containedItems.indexOf(item), 1);
-        this.inventory.push(item);
+        this.containedItems.push(item);
         return item.getting || 'You take the: <br>' + item.descriptor[0];
       }
     },
@@ -400,11 +369,13 @@ app.Item.prototype = {
       }
       var dropped = '',      
           item = theItem[0];
-      if (!this.hasItem(item, this.inventory)){
+      if (!this.hasItem(item, this.containedItems)){
         return 'You can\'t drop something you don\'t have';
       }
-      var index = this.inventory.indexOf(item);
-      this.inventory.splice(index, 1);
+      var itemContainer = app.fn.getItemContainer(this, item);
+      // var index = this.containedItems.indexOf(item);
+      // this.containedItems.splice(index, 1);
+      itemContainer.containedItems.splice(itemContainer.containedItems.indexOf(item), 1);
       room.containedItems.push(item);
       return 'You drop the: <br>' + item.descriptor[0];
 
@@ -427,18 +398,18 @@ app.Item.prototype = {
         return "The second item is not a container.";
       }
       
-      var path = app.fn.getPathTo(this.inventory, item);
+      var path = app.fn.getPathTo(this.containedItems, item);
         console.log(path);
 
       // if (this.hasItem(item)){
-      //   this.inventory + path
+      //   this.containedItems + path
       //   playerItems.splice(index, 1);
         //console.log(app.fn.getDeepIndex);
        
           
         
             //if (itemIndexInfo[0] === 0)
-            //itemParent = this.inventory[itemIndexInfo[0]],
+            //itemParent = this.containedItems[itemIndexInfo[0]],
             //itemIndex = itemIndexInfo[1];
 
         //itemParent.splice(itemIndex, 1);
@@ -528,10 +499,6 @@ app.Room.prototype = new app.Item({
       descriptor : ["flint"],
       combineWith : "stone"
     });
-    items.flint2 = new app.Item({
-      descriptor : ["flint2"],
-      combineWith : "stone"
-    });
     items.stick = new app.Item({
       descriptor : ["stick"]
     });
@@ -561,7 +528,7 @@ app.Room.prototype = new app.Item({
     items.bag2 = new app.Item({
       isContainer : true,
       descriptor : ["bag2"],
-      containedItems : [items.rune, items.pouch]
+      containedItems : [items.rune]
     });
     items.bag = new app.Item({
       isContainer : true,
@@ -572,19 +539,7 @@ app.Room.prototype = new app.Item({
       isStationary : true,
       descriptor : ["puddle"],
       isContainer : true,
-      containedItems : [items.flint, items.steel, items.stone],
-      visualSecretThreshold : 6,
-      sightDescription : "Rings of light ripple out from the center as drops fall into it from above.",
-      visualSecret : "As you look closer you can see that there is some depth to it!",
-      sounds : "The only sounds are those of the liquid dripping into it.",
-      tastes : "It tastes like keroseen!",
-      smells : "The puddle smells like something you would remove paint with."
-    });
-    items.puddle2 = new app.Item({
-      isStationary : true,
-      descriptor : ["puddle2"],
-      isContainer : true,
-      containedItems : [items.flint2],
+      containedItems : [items.flint, items.steel, items.stone, items.pouch],
       visualSecretThreshold : 6,
       sightDescription : "Rings of light ripple out from the center as drops fall into it from above.",
       visualSecret : "As you look closer you can see that there is some depth to it!",
@@ -610,7 +565,7 @@ app.Room.prototype = new app.Item({
     var currentRoom = new app.Room({
       descriptor : ["room","cell","area","here"],
       ambientLight : 10,
-      containedItems : [items.puddle, items.sword, items.puddle2],
+      containedItems : [items.puddle, items.sword],
       visualSecretThreshold : 5,
       visualSecret : "There is some writing on the wall. Scratched into the stone, it reads: He who is valiant and pure of spirit, may find the holy grail in the castle of... aaaaaauuuuggghh",
       sightDescription : "You are in a small 10'x10' room with roughly hewn stone walls joined together flawlessly without mortar. The floor is of the same material but larger and smoother tiles. There are no obvious exits except for a large iron door.",
@@ -627,7 +582,7 @@ app.Room.prototype = new app.Item({
     var currentPlayer = new app.Player(
       {
         playerName : "You",
-        inventory : [items.bag2, items.capris, items.bag]
+        containedItems : [items.bag2, items.capris, items.bag]
       }
     );
   //Testing function
@@ -639,12 +594,12 @@ app.Room.prototype = new app.Item({
         buttonNode = $("#hidden-button");
 
     //read function
-    var read = function(value){
+    var read = function(userCmd){
       var dict = {
         'help' : '<p>All you have are your senses (<span class="verb_hint">look, listen, feel, smell, taste)</span><br />Example Commands:<br /><span class="verb_hint">look</span> <span class="noun_hint">puddle</span> <br /><span class="verb_hint">listen</span><br /><em>Enter commands below.</em></p>',
         'save' : '<p>Your progress has been saved in the imperial scrolls of honor... not really, but soon. Consider it hardcore mode!</p>',
       };
-      var str = value.toLowerCase(),
+      var str = userCmd.toLowerCase(),
           words = str.split(" ");
       if (words[0] == "save") {
         textNode.append(dict.save);
@@ -656,6 +611,7 @@ app.Room.prototype = new app.Item({
       }else if (words.length >= 1){
         //have the player process the complete command
         narration = comprehend(words, currentRoom);
+        textNode.append('<p class="user-cmd">' + userCmd + '</p>');
         textNode.append('<p>' + narration + '</p>');
       }
     };
@@ -679,7 +635,7 @@ app.Room.prototype = new app.Item({
         }
       }
       //// Set a couple very useful variables here
-      var playerItems = app.fn.getNestedItems(currentPlayer.inventory),
+      var playerItems = app.fn.getNestedItems(currentPlayer.containedItems),
           roomItems = app.fn.getNestedItems(currentRoom.containedItems);
           //console.log(roomItems)
           //console.log(playerItems)
@@ -722,10 +678,11 @@ app.Room.prototype = new app.Item({
     //Run a function when user hits enter
     inputNode.on("keyup",function(event){
       if(event.keyCode === 13){
-        var value = $(this).val();
-        if (value !== ''){
+        var userCmd = $(this).val();
+        if (userCmd !== ''){
           //run the read funtion
-          read(value);
+          read(userCmd);
+          //clear the input
           this.value = '';
         }else{
           textNode.append("Sometimes the best course of action is to take no action, but that's not the case here.");

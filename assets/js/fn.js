@@ -25,6 +25,7 @@ app.fn = {
           //pathto.push(container.indexOf(container[i]))
           //console.log(container[i].descriptor[0] + " ")
           items.push(container[i]);
+          console.log(container[i].descriptor[0]);
           if (container[i].isContainer) {
             pushItems(container[i].containedItems);
           }
@@ -36,35 +37,6 @@ app.fn = {
     }
     return pushItems(container);
   },
-  // getPathTo: function(container, item){
-  //   var pathto = [];
-  //   function drill(container, item){
-  //     //console.log(container +" "+ item)
-  //     if (container.length > 0){
-  //       var numItems = container.length,
-  //           itemPath = [];
-  //       for (var i = 0; i < numItems; i++) {
-  //         pathto.push(container.indexOf(container[i]));
-  //         // console.log(container[i].descriptor[0] + " " + pathto);
-  //         if (item.descriptor[0] == container[i].descriptor[0]){
-  //           // console.log("fuck yeah");
-  //           itemPath = pathto;
-  //           break;
-  //         }else if (container[i].isContainer) {
-  //           drill(container[i].containedItems, item);
-  //         }
-  //         pathto.pop();
-  //       }
-  //       console.log(itemPath);
-  //       return itemPath;
-  //     }else{
-  //       return pathto;
-  //     }
-  //   }
-  //   //console.log(item);
-  //   return drill(container, item);
-  // },
-  //interesting function don't know if it will be usefull for anything
   getPathTo: function(container, item, path){
     var itemFound = false;
     
@@ -100,20 +72,17 @@ app.fn = {
       if (itemFound){
         break;
       }
-
       if (item.descriptor[0] == container.containedItems[i].descriptor[0]){
         //found the item what's it parent?
         parent = container;
         itemFound = true;
         break;
-
       }
       if(container.containedItems[i].containedItems.length > 0){
         app.fn.getItemContainer(container.containedItems[i], item);
       }
     }
     return parent;
-
   },
   flattenArray: function(a, r){
     if(!r){ r = [];}
