@@ -3,7 +3,7 @@
 app.Room = function Room(opts){
   var options = opts || {}; // Null Object Protection
   this.ambientLight = options.ambientLight || 0;
-  this.isContainer = options.isContainer || true;
+  this.capacity = options.capacity || 1000000;
   this.containedItems = options.containedItems || [];
   this.descriptor = options.descriptor;
   this.sightDescription = options.sightDescription;

@@ -6,7 +6,6 @@ app.Item = function Item(opts){
   this.ambientLight = options.ambientLight || 0;
   this.isStationary = options.isStationary || false;
   this.descriptor = options.descriptor;
-  this.isContainer = options.isContainer || false;
   this.containedItems = options.containedItems || [];
   this.comprisedOf = options.comprisedOf || [];
   this.combineWith = options.combineWith || [];
@@ -19,11 +18,14 @@ app.Item = function Item(opts){
   this.smells = options.smells;
   this.touch = options.touch;
   this.dropping = options.dropping;
+  this.physicalSize = options.physicalSize; //stones required item attribute
+  this.capacity = options.capacity || 0; //stones
+  this.locked = options.locked || false;
 };
 
 app.Item.prototype = {
   listContainedItems:function(){
-    if (!this.isContainer){
+    if (this.capacity === 0){
       return 'The ' + this.descriptor[0] + ' isn\'t a container.';
     }
     //get contained items
@@ -36,6 +38,15 @@ app.Item.prototype = {
       list.push(this.containedItems[i].descriptor[0]);
     }
     return "<p>The "+this.descriptor[0]+" contains:</p>" + list.join('<br />');
+  },
+  capacityRemaining:function(){
+    //get contained items
+    var capacityRemaining =  this.capacity,
+        numContained = this.containedItems.length;
+    for (var i = 0; i < numContained; i++ ){
+      capacityRemaining -= this.containedItems[i].physicalSize;
+    }
+    return capacityRemaining;
   }
   //,
   // hasItem:function(whichItem, container){
@@ -46,7 +57,7 @@ app.Item.prototype = {
   //     }
   //   }
   //   for (var i = 0; i < container.length; i++) {
-  //     if (container[i].isContainer){
+  //     if (container[i].capacity > 0){
   //       this.hasItem(whichItem, container[i].containedItems);
   //     }
   //   }

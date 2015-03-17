@@ -4,7 +4,7 @@
  * Copyright (c) 2014-2015, John Woolschlager
  * http://woolschlager.com/
  *
- * Compiled: 2015-01-17
+ * Compiled: 2015-02-26
  *
  */
 (function(window,$){
@@ -61,8 +61,8 @@ app.fn = {
           //pathto.push(container.indexOf(container[i]))
           //console.log(container[i].descriptor[0] + " ")
           items.push(container[i]);
-          console.log(container[i].descriptor[0]);
-          if (container[i].isContainer) {
+          // console.log(container[i].descriptor[0]);
+          if (container[i].capacity > 0) {
             pushItems(container[i].containedItems);
           }
         }
@@ -143,7 +143,6 @@ app.Item = function Item(opts){
   this.ambientLight = options.ambientLight || 0;
   this.isStationary = options.isStationary || false;
   this.descriptor = options.descriptor;
-  this.isContainer = options.isContainer || false;
   this.containedItems = options.containedItems || [];
   this.comprisedOf = options.comprisedOf || [];
   this.combineWith = options.combineWith || [];
@@ -156,11 +155,14 @@ app.Item = function Item(opts){
   this.smells = options.smells;
   this.touch = options.touch;
   this.dropping = options.dropping;
+  this.physicalSize = options.physicalSize; //stones required item attribute
+  this.capacity = options.capacity || 0; //stones
+  this.locked = options.locked || false;
 };
 
 app.Item.prototype = {
   listContainedItems:function(){
-    if (!this.isContainer){
+    if (this.capacity === 0){
       return 'The ' + this.descriptor[0] + ' isn\'t a container.';
     }
     //get contained items
@@ -173,6 +175,15 @@ app.Item.prototype = {
       list.push(this.containedItems[i].descriptor[0]);
     }
     return "<p>The "+this.descriptor[0]+" contains:</p>" + list.join('<br />');
+  },
+  capacityRemaining:function(){
+    //get contained items
+    var capacityRemaining =  this.capacity,
+        numContained = this.containedItems.length;
+    for (var i = 0; i < numContained; i++ ){
+      capacityRemaining -= this.containedItems[i].physicalSize;
+    }
+    return capacityRemaining;
   }
   //,
   // hasItem:function(whichItem, container){
@@ -183,7 +194,7 @@ app.Item.prototype = {
   //     }
   //   }
   //   for (var i = 0; i < container.length; i++) {
-  //     if (container[i].isContainer){
+  //     if (container[i].capacity > 0){
   //       this.hasItem(whichItem, container[i].containedItems);
   //     }
   //   }
@@ -219,7 +230,7 @@ app.Item.prototype = {
     
     look:function(theItem, room){
       // general vision check
-      if (room.ambientLight <= 0) 
+      if (room.ambientLight <= 0)
         return "The inky blackness of your surroundings makes it impossible to see.";
       
       // does theItem contain multiple items?
@@ -315,7 +326,7 @@ app.Item.prototype = {
       //TODO: Look into using the items list contained items function
       var item = theItem[0],
           numItems = item.containedItems.length;
-      if (!item.isContainer){
+      if (item.capacity === 0){
         return 'The ' + item.descriptor[0] + ' isn\'t a container.';
       }
       
@@ -356,7 +367,6 @@ app.Item.prototype = {
         return 'You already have the ' + item.descriptor[0];
       }
       var itemContainer = app.fn.getItemContainer(room, item);
-      console.log(itemContainer);
       if (itemContainer){
         itemContainer.containedItems.splice(itemContainer.containedItems.indexOf(item), 1);
         this.containedItems.push(item);
@@ -394,26 +404,35 @@ app.Item.prototype = {
       if (item.isStationary){
         return 'You cannot put a stationary object like the ' + item.descriptor[0] + " in the "+ container.descriptor[0];
       }
-      if (!container.isContainer){
+      if (container.capacity === 0){
         return "The second item is not a container.";
       }
-      
+      if (container.isLocked){
+        return "The container is locked.";
+      }
+      if (item.physicalSize > container.capacity){
+        return "The container isn't big enough for that.";
+      }
+      console.log(container.capacityRemaining);
+      if (item.physicalSize > container.capacityRemaining){
+        return "It won't fit";
+      }
       var path = app.fn.getPathTo(this.containedItems, item);
-        console.log(path);
+        // console.log(path);
 
       // if (this.hasItem(item)){
       //   this.containedItems + path
       //   playerItems.splice(index, 1);
-        //console.log(app.fn.getDeepIndex);
+      //   console.log(app.fn.getDeepIndex);
        
           
         
-            //if (itemIndexInfo[0] === 0)
-            //itemParent = this.containedItems[itemIndexInfo[0]],
-            //itemIndex = itemIndexInfo[1];
+      //       if (itemIndexInfo[0] === 0)
+      //       itemParent = this.containedItems[itemIndexInfo[0]],
+      //       itemIndex = itemIndexInfo[1];
 
-        //itemParent.splice(itemIndex, 1);
-        //container.containedItems.push(item);
+      //   itemParent.splice(itemIndex, 1);
+      //   container.containedItems.push(item);
       //   return "You put the " +item.descriptor[0]+" in the "+container.descriptor[0]+"."
       // }else if(room.hasItem(item, room.containedItems)){
       //   var index = room.containedItems.indexOf(item);
@@ -444,7 +463,7 @@ app.Item.prototype = {
 app.Room = function Room(opts){
   var options = opts || {}; // Null Object Protection
   this.ambientLight = options.ambientLight || 0;
-  this.isContainer = options.isContainer || true;
+  this.capacity = options.capacity || 1000000;
   this.containedItems = options.containedItems || [];
   this.descriptor = options.descriptor;
   this.sightDescription = options.sightDescription;
@@ -497,48 +516,59 @@ app.Room.prototype = new app.Item({
     
     items.flint = new app.Item({
       descriptor : ["flint"],
-      combineWith : "stone"
+      combineWith : "stone",
+      physicalSize : 1
     });
     items.stick = new app.Item({
-      descriptor : ["stick"]
+      descriptor : ["stick"],
+      physicalSize : 16
     });
     items.string = new app.Item({
-      descriptor : ["string"]
+      descriptor : ["string"],
+      physicalSize : 1
     });
-    items.rune = new app.Item({
+    items.runeStone = new app.Item({
       descriptor : ["rune"],
-      sightDescription : "It is a stone with a rune carved in it. It probably has hidden power."
+      sightDescription : "It is a stone with a rune carved in it. It probably has hidden power.",
+      physicalSize: 1
     });
     items.stone = new app.Item({
-      descriptor : ["stone", "flagstone", "rock"]
+      descriptor : ["stone", "flagstone", "rock"],
+      physicalSize : 1
     });
     items.steel = new app.Item({
-      descriptor : ["steel"]
+      descriptor : ["steel"],
+      physicalSize : 1
     });
     items.flintStone = new app.Item({
       descriptor : ["tinderbox"],
       sightDescription : "you can light stuff with it",
-      comprisedOf : [items.flint, items.steel]
+      comprisedOf : [items.flint, items.steel],
+      physicalSize : 2
     });
     items.pouch = new app.Item({
-      isContainer : true,
       descriptor : ["pouch"],
-      containedItems : [items.string]
+      containedItems : [items.string],
+      physicalSize : 4,
+      capacity : 4
     });
     items.bag2 = new app.Item({
-      isContainer : true,
       descriptor : ["bag2"],
-      containedItems : [items.rune]
+      containedItems : [items.rune],
+      physicalSize : 16,
+      capacity : 16
     });
     items.bag = new app.Item({
-      isContainer : true,
       descriptor : ["bag"],
-      containedItems : []
+      containedItems : [],
+      physicalSize : 16,
+      capacity : 16
     });
     items.puddle = new app.Item({
       isStationary : true,
       descriptor : ["puddle"],
-      isContainer : true,
+      physicalSize : 64,
+      capacity : 64,
       containedItems : [items.flint, items.steel, items.stone, items.pouch],
       visualSecretThreshold : 6,
       sightDescription : "Rings of light ripple out from the center as drops fall into it from above.",
@@ -553,13 +583,16 @@ app.Room.prototype = new app.Item({
       sounds : "They make a quiet swishing sound when you walk (stealth -1).",
       tastes : "You probably don't want to do that.",
       smells : "You probably don't want to do that.",
-      touch : "They feel light and agile (agility +2)."
+      touch : "They feel light and agile (agility +2).",
+      physicalSize : 3,
+      capacity : 2
     });
     items.sword = new app.Item({
       descriptor : ["sword"],
       getting : "You pick up the sword.",
       sightDescription : "The blade is pitted with age.",
-      touch: "You carefully rub your thumb across different points on the blade. It would benefit from a good sharpening."
+      touch: "You carefully rub your thumb across different points on the blade. It would benefit from a good sharpening.",
+      capacity : 4
     });
     //Create Room Object passing descriptions and items in
     var currentRoom = new app.Room({

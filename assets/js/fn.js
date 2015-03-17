@@ -25,8 +25,8 @@ app.fn = {
           //pathto.push(container.indexOf(container[i]))
           //console.log(container[i].descriptor[0] + " ")
           items.push(container[i]);
-          console.log(container[i].descriptor[0]);
-          if (container[i].isContainer) {
+          // console.log(container[i].descriptor[0]);
+          if (container[i].capacity > 0) {
             pushItems(container[i].containedItems);
           }
         }

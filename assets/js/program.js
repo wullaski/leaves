@@ -6,48 +6,59 @@
     
     items.flint = new app.Item({
       descriptor : ["flint"],
-      combineWith : "stone"
+      combineWith : "stone",
+      physicalSize : 1
     });
     items.stick = new app.Item({
-      descriptor : ["stick"]
+      descriptor : ["stick"],
+      physicalSize : 16
     });
     items.string = new app.Item({
-      descriptor : ["string"]
+      descriptor : ["string"],
+      physicalSize : 1
     });
-    items.rune = new app.Item({
+    items.runeStone = new app.Item({
       descriptor : ["rune"],
-      sightDescription : "It is a stone with a rune carved in it. It probably has hidden power."
+      sightDescription : "It is a stone with a rune carved in it. It probably has hidden power.",
+      physicalSize: 1
     });
     items.stone = new app.Item({
-      descriptor : ["stone", "flagstone", "rock"]
+      descriptor : ["stone", "flagstone", "rock"],
+      physicalSize : 1
     });
     items.steel = new app.Item({
-      descriptor : ["steel"]
+      descriptor : ["steel"],
+      physicalSize : 1
     });
     items.flintStone = new app.Item({
       descriptor : ["tinderbox"],
       sightDescription : "you can light stuff with it",
-      comprisedOf : [items.flint, items.steel]
+      comprisedOf : [items.flint, items.steel],
+      physicalSize : 2
     });
     items.pouch = new app.Item({
-      isContainer : true,
       descriptor : ["pouch"],
-      containedItems : [items.string]
+      containedItems : [items.string],
+      physicalSize : 4,
+      capacity : 4
     });
     items.bag2 = new app.Item({
-      isContainer : true,
       descriptor : ["bag2"],
-      containedItems : [items.rune]
+      containedItems : [items.rune],
+      physicalSize : 16,
+      capacity : 16
     });
     items.bag = new app.Item({
-      isContainer : true,
       descriptor : ["bag"],
-      containedItems : []
+      containedItems : [],
+      physicalSize : 16,
+      capacity : 16
     });
     items.puddle = new app.Item({
       isStationary : true,
       descriptor : ["puddle"],
-      isContainer : true,
+      physicalSize : 64,
+      capacity : 64,
       containedItems : [items.flint, items.steel, items.stone, items.pouch],
       visualSecretThreshold : 6,
       sightDescription : "Rings of light ripple out from the center as drops fall into it from above.",
@@ -62,13 +73,16 @@
       sounds : "They make a quiet swishing sound when you walk (stealth -1).",
       tastes : "You probably don't want to do that.",
       smells : "You probably don't want to do that.",
-      touch : "They feel light and agile (agility +2)."
+      touch : "They feel light and agile (agility +2).",
+      physicalSize : 3,
+      capacity : 2
     });
     items.sword = new app.Item({
       descriptor : ["sword"],
       getting : "You pick up the sword.",
       sightDescription : "The blade is pitted with age.",
-      touch: "You carefully rub your thumb across different points on the blade. It would benefit from a good sharpening."
+      touch: "You carefully rub your thumb across different points on the blade. It would benefit from a good sharpening.",
+      capacity : 4
     });
     //Create Room Object passing descriptions and items in
     var currentRoom = new app.Room({

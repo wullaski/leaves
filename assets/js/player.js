@@ -19,7 +19,7 @@
     
     look:function(theItem, room){
       // general vision check
-      if (room.ambientLight <= 0) 
+      if (room.ambientLight <= 0)
         return "The inky blackness of your surroundings makes it impossible to see.";
       
       // does theItem contain multiple items?
@@ -115,7 +115,7 @@
       //TODO: Look into using the items list contained items function
       var item = theItem[0],
           numItems = item.containedItems.length;
-      if (!item.isContainer){
+      if (item.capacity === 0){
         return 'The ' + item.descriptor[0] + ' isn\'t a container.';
       }
       
@@ -156,7 +156,6 @@
         return 'You already have the ' + item.descriptor[0];
       }
       var itemContainer = app.fn.getItemContainer(room, item);
-      console.log(itemContainer);
       if (itemContainer){
         itemContainer.containedItems.splice(itemContainer.containedItems.indexOf(item), 1);
         this.containedItems.push(item);
@@ -194,26 +193,35 @@
       if (item.isStationary){
         return 'You cannot put a stationary object like the ' + item.descriptor[0] + " in the "+ container.descriptor[0];
       }
-      if (!container.isContainer){
+      if (container.capacity === 0){
         return "The second item is not a container.";
       }
-      
+      if (container.isLocked){
+        return "The container is locked.";
+      }
+      if (item.physicalSize > container.capacity){
+        return "The container isn't big enough for that.";
+      }
+      console.log(container.capacityRemaining);
+      if (item.physicalSize > container.capacityRemaining){
+        return "It won't fit";
+      }
       var path = app.fn.getPathTo(this.containedItems, item);
-        console.log(path);
+        // console.log(path);
 
       // if (this.hasItem(item)){
       //   this.containedItems + path
       //   playerItems.splice(index, 1);
-        //console.log(app.fn.getDeepIndex);
+      //   console.log(app.fn.getDeepIndex);
        
           
         
-            //if (itemIndexInfo[0] === 0)
-            //itemParent = this.containedItems[itemIndexInfo[0]],
-            //itemIndex = itemIndexInfo[1];
+      //       if (itemIndexInfo[0] === 0)
+      //       itemParent = this.containedItems[itemIndexInfo[0]],
+      //       itemIndex = itemIndexInfo[1];
 
-        //itemParent.splice(itemIndex, 1);
-        //container.containedItems.push(item);
+      //   itemParent.splice(itemIndex, 1);
+      //   container.containedItems.push(item);
       //   return "You put the " +item.descriptor[0]+" in the "+container.descriptor[0]+"."
       // }else if(room.hasItem(item, room.containedItems)){
       //   var index = room.containedItems.indexOf(item);
