@@ -44,7 +44,7 @@
     });
     items.bag2 = new app.Item({
       descriptor : ["bag2"],
-      containedItems : [items.rune],
+      containedItems : [items.runeStone],
       physicalSize : 16,
       capacity : 16
     });
@@ -73,7 +73,7 @@
       sounds : "They make a quiet swishing sound when you walk (stealth -1).",
       tastes : "You probably don't want to do that.",
       smells : "You probably don't want to do that.",
-      touch : "They feel light and agile (agility +2).",
+      touch : "They feel light and you feel agile, like a cat. (agility +2).",
       physicalSize : 3,
       capacity : 2
     });

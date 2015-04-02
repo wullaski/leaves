@@ -4,7 +4,7 @@
  * Copyright (c) 2014-2015, John Woolschlager
  * http://woolschlager.com/
  *
- * Compiled: 2015-02-26
+ * Compiled: 2015-04-02
  *
  */
 (function(window,$){
@@ -62,7 +62,7 @@ app.fn = {
           //console.log(container[i].descriptor[0] + " ")
           items.push(container[i]);
           // console.log(container[i].descriptor[0]);
-          if (container[i].capacity > 0) {
+          if (container[i].containedItems.length > 0) {
             pushItems(container[i].containedItems);
           }
         }
@@ -462,6 +462,7 @@ app.Item.prototype = {
 //Room class
 app.Room = function Room(opts){
   var options = opts || {}; // Null Object Protection
+  this.isStationary = true;
   this.ambientLight = options.ambientLight || 0;
   this.capacity = options.capacity || 1000000;
   this.containedItems = options.containedItems || [];
@@ -554,7 +555,7 @@ app.Room.prototype = new app.Item({
     });
     items.bag2 = new app.Item({
       descriptor : ["bag2"],
-      containedItems : [items.rune],
+      containedItems : [items.runeStone],
       physicalSize : 16,
       capacity : 16
     });
@@ -583,7 +584,7 @@ app.Room.prototype = new app.Item({
       sounds : "They make a quiet swishing sound when you walk (stealth -1).",
       tastes : "You probably don't want to do that.",
       smells : "You probably don't want to do that.",
-      touch : "They feel light and agile (agility +2).",
+      touch : "They feel light and you feel agile, like a cat. (agility +2).",
       physicalSize : 3,
       capacity : 2
     });

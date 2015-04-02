@@ -26,7 +26,7 @@ app.fn = {
           //console.log(container[i].descriptor[0] + " ")
           items.push(container[i]);
           // console.log(container[i].descriptor[0]);
-          if (container[i].capacity > 0) {
+          if (container[i].containedItems.length > 0) {
             pushItems(container[i].containedItems);
           }
         }
