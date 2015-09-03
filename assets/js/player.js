@@ -1,10 +1,10 @@
-(function(window,$,app){
-//Player class
+var leaves = (function($, app){
+  //Player class
   app.Player = function Player(playerData){
     var data = playerData || {};
     this.containedItems = data.containedItems || {};
     this.playerName = data.playerName || "Anonymous";
-    this.currentLocation = app.map[0] || "Lost in time and space";
+    // this.currentLocation = app.map[0] || "Lost in time and space";
   };
 
   app.Player.prototype = {
@@ -234,4 +234,6 @@
         
     }
   };
-})(window, $, window.app || {});
+  
+  return app;
+}($, leaves || {}));

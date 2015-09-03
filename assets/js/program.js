@@ -1,4 +1,5 @@
-(function(window,$,app){
+var leaves = (function($, app){
+
     //Create Items
     //TODO: Fix this maybe -> The order the items are created are important
     //items first then containers followed by room and player
@@ -108,6 +109,7 @@
         containedItems : [items.bag2, items.capris, items.bag]
       }
     );
+
   //Testing function
   $(function(){
 
@@ -213,5 +215,7 @@
         $('.readout').animate({ scrollTop: $('.readout-content').height() }, "fast"); 
       }
     });
-});
-})(window, $, window.app || {});
+  });
+
+  return app;
+}($, leaves || {}));
