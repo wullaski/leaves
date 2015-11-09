@@ -20,32 +20,5 @@ var leaves = (function($, app){
       return player.playerName + 'says, \"' + message + '\"';
     }
   });
-  // app.Room.prototype = {
-  //   // listContainedItems:function(){
-  //   //   //get contained items
-  //   //   var numContained = this.containedItems.length,
-  //   //       list = [];
-  //   //   if (numContained !== 0) {
-  //   //     for (var i = 0; i < numContained; i++ ){
-  //   //       list.push(this.containedItems[i].descriptor[0]);
-  //   //     }
-  //   //     return "<p>In the room there is:<br />" + list.join('<br />') + '</p>';
-  //   //   }else{
-  //   //     return "There is nothing  :(";
-  //   //   }
-  //   // }
-  //   //   updateSights:function(){
-  //   //     this.sights = this.sightDescription + this.listContainedItems();
-  //   //   }
-  //   // hasItem:function(whichItem){
-  //   //   //loop through discoveredItems
-  //   //   for (var i = 0; i < this.discoveredItems.length; i++) {
-  //   //     if (whichItem === this.discoveredItems[i].descriptor) {
-  //   //       return true;
-  //   //     }
-  //   //   }
-  //   // }
-  //   //Move items from discoverd to hidden
-  // };
   return app;
 }($, leaves || {}));

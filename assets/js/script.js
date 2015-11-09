@@ -4,7 +4,7 @@
  * Copyright (c) 2014-2015, John Woolschlager
  * http://woolschlager.com/
  *
- * Compiled: 2015-09-03
+ * Compiled: 2015-10-13
  *
  */
 // var leaves = (function(app){
@@ -323,7 +323,7 @@ var leaves = (function($, app){
         return foundItems;
       }else{
         return 'You have nothing on your person.';
-      }        
+      }
     },
     search:function(theItem, room){
       if (theItem.length >= 2){
@@ -396,59 +396,39 @@ var leaves = (function($, app){
       return 'You drop the: <br>' + item.descriptor[0];
 
     },
-    put:function(theItems, room){
-      //console.log(theItems);
-      var numItems = theItems.length;
+    put:function(theItems){
+      var item = theItems[0],
+          itemDestination = theItems[1],
+          numItems = theItems.length;
+
       if (numItems < 2){
         return "You need an item and a container for that to work.";
+      }
+      if (!this.hasItem(item, this.containedItems)){
+        return "You do not possess that item, try <u>taking</u> it first";
       }
       if (numItems > 2){
         return "Try putting one item in at a time.";
       }
-      var item = theItems[0];
-          container = theItems[1];
       if (item.isStationary){
-        return 'You cannot put a stationary object like the ' + item.descriptor[0] + " in the "+ container.descriptor[0];
+        return 'You cannot put a stationary object like the ' + item.descriptor[0] + " in the "+ itemDestination.descriptor[0];
       }
-      if (container.capacity === 0){
+      if (itemDestination.capacity === 0){
         return "The second item is not a container.";
       }
-      if (container.isLocked){
+      if (itemDestination.isLocked){
         return "The container is locked.";
       }
-      if (item.physicalSize > container.capacity){
+      if (item.physicalSize > itemDestination.capacity){
         return "The container isn't big enough for that.";
       }
-      console.log(container.capacityRemaining);
-      if (item.physicalSize > container.capacityRemaining){
-        return "It won't fit";
+      if (item.physicalSize > itemDestination.capacityRemaining){
+        return "It won't fit with all the other stuff in there.";
       }
-      var path = app.fn.getPathTo(this.containedItems, item);
-        // console.log(path);
-
-      // if (this.hasItem(item)){
-      //   this.containedItems + path
-      //   playerItems.splice(index, 1);
-      //   console.log(app.fn.getDeepIndex);
-       
-          
-        
-      //       if (itemIndexInfo[0] === 0)
-      //       itemParent = this.containedItems[itemIndexInfo[0]],
-      //       itemIndex = itemIndexInfo[1];
-
-      //   itemParent.splice(itemIndex, 1);
-      //   container.containedItems.push(item);
-      //   return "You put the " +item.descriptor[0]+" in the "+container.descriptor[0]+"."
-      // }else if(room.hasItem(item, room.containedItems)){
-      //   var index = room.containedItems.indexOf(item);
-      //   room.containedItems.splice(index, 1);
-      //   container.containedItems.push(item);
-      //   return "You put the " +item.descriptor[0]+" in the "+container.descriptor[0]+"."
-      // }else{
-      //   return "The item is not within your grasp!"
-      // }
-        
+      var itemOrigin = app.fn.getItemContainer(this, item);
+      itemOrigin.containedItems.splice(itemOrigin.containedItems.indexOf(item), 1);
+      itemDestination.containedItems.push(item);
+      return "You put the " + item.descriptor[0] + " in the "+ itemDestination.descriptor[0];
     }
   };
   
@@ -489,33 +469,6 @@ var leaves = (function($, app){
       return player.playerName + 'says, \"' + message + '\"';
     }
   });
-  // app.Room.prototype = {
-  //   // listContainedItems:function(){
-  //   //   //get contained items
-  //   //   var numContained = this.containedItems.length,
-  //   //       list = [];
-  //   //   if (numContained !== 0) {
-  //   //     for (var i = 0; i < numContained; i++ ){
-  //   //       list.push(this.containedItems[i].descriptor[0]);
-  //   //     }
-  //   //     return "<p>In the room there is:<br />" + list.join('<br />') + '</p>';
-  //   //   }else{
-  //   //     return "There is nothing  :(";
-  //   //   }
-  //   // }
-  //   //   updateSights:function(){
-  //   //     this.sights = this.sightDescription + this.listContainedItems();
-  //   //   }
-  //   // hasItem:function(whichItem){
-  //   //   //loop through discoveredItems
-  //   //   for (var i = 0; i < this.discoveredItems.length; i++) {
-  //   //     if (whichItem === this.discoveredItems[i].descriptor) {
-  //   //       return true;
-  //   //     }
-  //   //   }
-  //   // }
-  //   //Move items from discoverd to hidden
-  // };
   return app;
 }($, leaves || {}));
 var leaves = (function($, app){

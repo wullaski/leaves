@@ -12,7 +12,7 @@ var leaves = (function($, app){
     });
     items.stick = new app.Item({
       descriptor : ["stick"],
-      physicalSize : 16
+      physicalSize : 24
     });
     items.string = new app.Item({
       descriptor : ["string"],
@@ -46,13 +46,13 @@ var leaves = (function($, app){
     items.bag2 = new app.Item({
       descriptor : ["bag2"],
       containedItems : [items.runeStone],
-      physicalSize : 16,
+      physicalSize : 17,
       capacity : 16
     });
     items.bag = new app.Item({
       descriptor : ["bag"],
       containedItems : [],
-      physicalSize : 16,
+      physicalSize : 17,
       capacity : 16
     });
     items.puddle = new app.Item({
@@ -82,8 +82,8 @@ var leaves = (function($, app){
       descriptor : ["sword"],
       getting : "You pick up the sword.",
       sightDescription : "The blade is pitted with age.",
-      touch: "You carefully rub your thumb across different points on the blade. It would benefit from a good sharpening.",
-      capacity : 4
+      touch: "You carefully rub your thumb across different points on the blade. It would benefit from a good sharpening, but it does look like quality steel.",
+      physicalSize: 24
     });
     //Create Room Object passing descriptions and items in
     var currentRoom = new app.Room({
@@ -147,6 +147,7 @@ var leaves = (function($, app){
       // currentPlayer functions. It then calls the function and passes item and room information.
       */
       // Set the verb and modify the words array
+
       var verb = '',
           nouns = [],
           numWords = words.length;
@@ -197,7 +198,6 @@ var leaves = (function($, app){
         return "Although it may be your wish to " + words.join(" ") + ". What would be the point?";
       }
     };
-
     //Place the cursor in the input
     inputNode.focus();
     //Run a function when user hits enter
