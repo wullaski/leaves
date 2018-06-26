@@ -70,6 +70,9 @@ var leaves = (function($, app){
       }
     },
     combine:function(theItems, room, itemLibrary){
+      if (!this.hasItem(theItems[0], this.containedItems) || !this.hasItem(theItems[1], this.containedItems)) {
+        return 'You don\'t have one or more items needed to craft that';
+      }
       
       if (theItems[0].combineWith == theItems[1].descriptor[0]){
         var numItems = Object.keys(itemLibrary).length;
@@ -79,6 +82,7 @@ var leaves = (function($, app){
               itemComprisedOf = libraryItem.comprisedOf.sort().join(),
               theseItems = theItems.sort().join();
           if (itemComprisedOf == theseItems){
+            console.log(this.containedItems)
             this.containedItems.push(libraryItem);
             var index1 = this.containedItems.indexOf(theItems[0]);
             this.containedItems.splice(index1, 1);

@@ -36,7 +36,7 @@ module.exports = function (grunt) {
 
     srcDir: 'assets/',
     jshint: {
-      all: [srcFiles]
+      all: srcFiles
     },
     concat: {
       options: {

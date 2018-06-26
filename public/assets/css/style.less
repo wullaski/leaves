@@ -1,21 +1,10 @@
-
-/*import fonts*/
-@import url(http://fonts.googleapis.com/css?family=Cousine);
-
-@font-face
-{
-font-family: Atreyu;
-src: url('../fonts/Atreyu.otf');
+@font-face {
+  font-family: Venera;
+  src: url('../fonts/Venera-100.otf');
 }
-@font-face
-{
-font-family: saturnV;
-src: url('../fonts/SaturnV.otf');
-}
-@font-face
-{
-font-family: Venera;
-src: url('../fonts/Venera-100.otf');
+@font-face {
+  font-family: Inconsolata;
+  src: url('../fonts/Inconsolata.otf');
 }
 /* apply a natural box layout model to all elements */
 * { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
@@ -53,9 +42,8 @@ p{
   padding-right:10%;
 }
 h1{
-  font-family: 'Venera' serif;
+  font-family: 'Venera', serif;
   font-size: 1.4em;
-  //text-transform: lowercase;
   margin-bottom:0;
   font-weight: 100;
 
@@ -89,7 +77,7 @@ h1{
 .readout{
   border-radius: 3px;
   position: relative;
-  font: normal .8em/1.5em 'Cousine', sans-serif;
+  font: bold .9em/1.5em 'Inconsolata', sans-serif;
   color:#424242;
   height: 320px;
   overflow-y:scroll;
@@ -102,11 +90,14 @@ h1{
   position: absolute;
 }
 span.terminal{
-  width:5%;
+  position: relative;
+  display: inline-block;
+  top: -2px;
+  left: 5px;
 }
 input{
   color:#cec5b1;
-  font: normal 1em/1.5em 'Cousine', sans-serif;
+  font-size: 1em;
 }
 textarea:focus, input:focus{
     outline: none;

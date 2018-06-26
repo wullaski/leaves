@@ -1,10 +1,10 @@
 /**
  * @license
  * Leaves - v0.0.0
- * Copyright (c) 2014-2015, John Woolschlager
+ * Copyright (c) 2014-2018, John Woolschlager
  * http://woolschlager.com/
  *
- * Compiled: 2015-10-13
+ * Compiled: 2018-06-25
  *
  */
 // var leaves = (function(app){
@@ -287,6 +287,9 @@ var leaves = (function($, app){
       }
     },
     combine:function(theItems, room, itemLibrary){
+      if (!this.hasItem(theItems[0], this.containedItems) || !this.hasItem(theItems[1], this.containedItems)) {
+        return 'You don\'t have one or more items needed to craft that';
+      }
       
       if (theItems[0].combineWith == theItems[1].descriptor[0]){
         var numItems = Object.keys(itemLibrary).length;
@@ -296,6 +299,7 @@ var leaves = (function($, app){
               itemComprisedOf = libraryItem.comprisedOf.sort().join(),
               theseItems = theItems.sort().join();
           if (itemComprisedOf == theseItems){
+            console.log(this.containedItems)
             this.containedItems.push(libraryItem);
             var index1 = this.containedItems.indexOf(theItems[0]);
             this.containedItems.splice(index1, 1);
@@ -480,12 +484,12 @@ var leaves = (function($, app){
     
     items.flint = new app.Item({
       descriptor : ["flint"],
-      combineWith : "stone",
+      combineWith : "steel",
       physicalSize : 1
     });
     items.stick = new app.Item({
       descriptor : ["stick"],
-      physicalSize : 16
+      physicalSize : 24
     });
     items.string = new app.Item({
       descriptor : ["string"],
@@ -519,13 +523,13 @@ var leaves = (function($, app){
     items.bag2 = new app.Item({
       descriptor : ["bag2"],
       containedItems : [items.runeStone],
-      physicalSize : 16,
+      physicalSize : 17,
       capacity : 16
     });
     items.bag = new app.Item({
       descriptor : ["bag"],
       containedItems : [],
-      physicalSize : 16,
+      physicalSize : 17,
       capacity : 16
     });
     items.puddle = new app.Item({
@@ -543,7 +547,7 @@ var leaves = (function($, app){
     });
     items.capris = new app.Item({
       descriptor : ["capris", "pants"],
-      sightDescription : "Hemmed right above the calve, they'll make anybody wearing them look like an idiot.",
+      sightDescription : "Too short of pants too long for shorts.",
       sounds : "They make a quiet swishing sound when you walk (stealth -1).",
       tastes : "You probably don't want to do that.",
       smells : "You probably don't want to do that.",
@@ -555,8 +559,8 @@ var leaves = (function($, app){
       descriptor : ["sword"],
       getting : "You pick up the sword.",
       sightDescription : "The blade is pitted with age.",
-      touch: "You carefully rub your thumb across different points on the blade. It would benefit from a good sharpening.",
-      capacity : 4
+      touch: "You carefully rub your thumb across different points on the blade. It would benefit from a good sharpening, but it does look like quality steel.",
+      physicalSize: 24
     });
     //Create Room Object passing descriptions and items in
     var currentRoom = new app.Room({
@@ -620,6 +624,7 @@ var leaves = (function($, app){
       // currentPlayer functions. It then calls the function and passes item and room information.
       */
       // Set the verb and modify the words array
+
       var verb = '',
           nouns = [],
           numWords = words.length;
@@ -670,7 +675,6 @@ var leaves = (function($, app){
         return "Although it may be your wish to " + words.join(" ") + ". What would be the point?";
       }
     };
-
     //Place the cursor in the input
     inputNode.focus();
     //Run a function when user hits enter

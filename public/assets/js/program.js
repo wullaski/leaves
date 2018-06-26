@@ -7,7 +7,7 @@ var leaves = (function($, app){
     
     items.flint = new app.Item({
       descriptor : ["flint"],
-      combineWith : "stone",
+      combineWith : "steel",
       physicalSize : 1
     });
     items.stick = new app.Item({
@@ -70,7 +70,7 @@ var leaves = (function($, app){
     });
     items.capris = new app.Item({
       descriptor : ["capris", "pants"],
-      sightDescription : "Hemmed right above the calve, they'll make anybody wearing them look like an idiot.",
+      sightDescription : "Too short of pants too long for shorts.",
       sounds : "They make a quiet swishing sound when you walk (stealth -1).",
       tastes : "You probably don't want to do that.",
       smells : "You probably don't want to do that.",
