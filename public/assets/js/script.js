@@ -4,7 +4,7 @@
  * Copyright (c) 2014-2018, John Woolschlager
  * http://woolschlager.com/
  *
- * Compiled: 2018-06-25
+ * Compiled: 2018-07-09
  *
  */
 // var leaves = (function(app){
@@ -150,6 +150,7 @@ var leaves = (function($, app){
     this.containedItems = options.containedItems || [];
     this.comprisedOf = options.comprisedOf || [];
     this.combineWith = options.combineWith || [];
+    this.saveOnCombine = options.saveOnCombine || false;
     this.getting = options.getting;
     this.sightDescription = options.sightDescription;
     this.visualSecret = options.visualSecret;
@@ -290,21 +291,28 @@ var leaves = (function($, app){
       if (!this.hasItem(theItems[0], this.containedItems) || !this.hasItem(theItems[1], this.containedItems)) {
         return 'You don\'t have one or more items needed to craft that';
       }
-      
       if (theItems[0].combineWith == theItems[1].descriptor[0]){
         var numItems = Object.keys(itemLibrary).length;
         //loop through the items library and push the made item to the players inventory
         for (var i = numItems - 1; i >= 2; i--) {
-          var libraryItem = itemLibrary[Object.keys(itemLibrary)[i]],
-              itemComprisedOf = libraryItem.comprisedOf.sort().join(),
-              theseItems = theItems.sort().join();
+          var libraryItem = itemLibrary[Object.keys(itemLibrary)[i]];
+          var itemComprisedOf = libraryItem.comprisedOf.map(function(item){
+            return item.descriptor[0];
+          }).sort().join();
+          
+          var theseItems = theItems.map(function(item){
+            return item.descriptor[0]
+          }).sort().join();
           if (itemComprisedOf == theseItems){
-            console.log(this.containedItems)
             this.containedItems.push(libraryItem);
-            var index1 = this.containedItems.indexOf(theItems[0]);
-            this.containedItems.splice(index1, 1);
-            var index2 = this.containedItems.indexOf(theItems[1]);
-            this.containedItems.splice(index2, 1);
+            if (theItems[0].saveOnCombine === false) {
+              var index1 = this.containedItems.indexOf(theItems[0]);
+              this.containedItems.splice(index1, 1);
+            }
+            if (theItems[1].saveOnCombine === false) {
+              var index2 = this.containedItems.indexOf(theItems[1]);
+              this.containedItems.splice(index2, 1);
+            }
             return "you made a item";
           }
         }
@@ -475,7 +483,7 @@ var leaves = (function($, app){
   });
   return app;
 }($, leaves || {}));
-var leaves = (function($, app){
+var leaves = (function ($, app) {
 
     //Create Items
     //TODO: Fix this maybe -> The order the items are created are important
@@ -502,7 +510,8 @@ var leaves = (function($, app){
     });
     items.stone = new app.Item({
       descriptor : ["stone", "flagstone", "rock"],
-      physicalSize : 1
+      physicalSize : 1,
+      combineWith : "sword"
     });
     items.steel = new app.Item({
       descriptor : ["steel"],
@@ -537,36 +546,57 @@ var leaves = (function($, app){
       descriptor : ["puddle"],
       physicalSize : 64,
       capacity : 64,
-      containedItems : [items.flint, items.steel, items.stone, items.pouch],
+      containedItems : [items.flint, items.steel, items.pouch],
       visualSecretThreshold : 6,
       sightDescription : "Rings of light ripple out from the center as drops fall into it from above.",
       visualSecret : "As you look closer you can see that there is some depth to it!",
       sounds : "The only sounds are those of the liquid dripping into it.",
-      tastes : "It tastes like keroseen!",
-      smells : "The puddle smells like something you would remove paint with."
+      tastes : "It tastes like burning.",
+      smells : "The noxious smelling liquid leaves you feeling light headed."
     });
     items.capris = new app.Item({
-      descriptor : ["capris", "pants"],
+      descriptor : ["capris"],
       sightDescription : "Too short of pants too long for shorts.",
       sounds : "They make a quiet swishing sound when you walk (stealth -1).",
       tastes : "You probably don't want to do that.",
       smells : "You probably don't want to do that.",
       touch : "They feel light and you feel agile, like a cat. (agility +2).",
       physicalSize : 3,
-      capacity : 2
+      capacity : 2,
+      combineWith: "keensword",
     });
     items.sword = new app.Item({
       descriptor : ["sword"],
       getting : "You pick up the sword.",
       sightDescription : "The blade is pitted with age.",
       touch: "You carefully rub your thumb across different points on the blade. It would benefit from a good sharpening, but it does look like quality steel.",
-      physicalSize: 24
+      physicalSize: 24,
+      combineWith: "stone"
+    });
+    items.keenSword = new app.Item({
+      descriptor : ["keensword"],
+      getting: "This is finely honed sword. Definitely able to make quick work of those awful capris and convert them into proper shorts.",
+      touch: "It feels as though you could shave with it. Not that you should try.",
+      sightDescription: "It's a standard short sword, double bladed and made for slashing.",
+      physicalSize: 24,
+      comprisedOf: [items.sword, items.stone],
+      combineWith: "capris",
+      saveOnCombine: true
+    });
+    items.shorts = new app.Item({
+      descriptor: ['shorts'],
+      getting: "You've aquired leg coverings of appropriate length.",
+      sightDescription: "Shorts with pockets big enough to carry at least a few dead birds or whatever it is you like to carry around with you.",
+      physicalSize: 12,
+      capacity: 24,
+      containedItems: [],
+      comprisedOf: [items.keenSword, items.capris],
     });
     //Create Room Object passing descriptions and items in
     var currentRoom = new app.Room({
       descriptor : ["room","cell","area","here"],
       ambientLight : 10,
-      containedItems : [items.puddle, items.sword],
+      containedItems : [items.puddle],
       visualSecretThreshold : 5,
       visualSecret : "There is some writing on the wall. Scratched into the stone, it reads: He who is valiant and pure of spirit, may find the holy grail in the castle of... aaaaaauuuuggghh",
       sightDescription : "You are in a small 10'x10' room with roughly hewn stone walls joined together flawlessly without mortar. The floor is of the same material but larger and smoother tiles. There are no obvious exits except for a large iron door.",
@@ -583,7 +613,7 @@ var leaves = (function($, app){
     var currentPlayer = new app.Player(
       {
         playerName : "You",
-        containedItems : [items.bag2, items.capris, items.bag]
+        containedItems : [items.bag2, items.capris, items.bag, items.sword, items.stone]
       }
     );
 
@@ -598,8 +628,8 @@ var leaves = (function($, app){
     //read function
     var read = function(userCmd){
       var dict = {
-        'help' : '<p>All you have are your senses (<span class="verb_hint">look, listen, feel, smell, taste)</span><br />Example Commands:<br /><span class="verb_hint">look</span> <span class="noun_hint">puddle</span> <br /><span class="verb_hint">listen</span><br /><em>Enter commands below.</em></p>',
-        'save' : '<p>Your progress has been saved in the imperial scrolls of honor... not really, but soon. Consider it hardcore mode!</p>',
+        'help' : '<p>Use your senses for hints. (<span class="verb_hint">look, listen, feel, smell, taste)</span> There is also <span class="verb_hint">search, take, put, and combine</span>.<br />Example Commands:<br /><span class="verb_hint">look</span> <span class="noun_hint">puddle</span> <br /><span class="verb_hint">listen</span><br /><em>Enter commands below.</em></p>',
+        'save' : '<p>Your progress would have been saved in the imperial scrolls of honor, but the developer is too busy playing videogames that work for that feature to implemented. Consider it hardcore mode for now.</p>',
       };
       var str = userCmd.toLowerCase(),
           words = str.split(" ");

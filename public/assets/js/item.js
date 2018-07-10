@@ -9,6 +9,7 @@ var leaves = (function($, app){
     this.containedItems = options.containedItems || [];
     this.comprisedOf = options.comprisedOf || [];
     this.combineWith = options.combineWith || [];
+    this.saveOnCombine = options.saveOnCombine || false;
     this.getting = options.getting;
     this.sightDescription = options.sightDescription;
     this.visualSecret = options.visualSecret;

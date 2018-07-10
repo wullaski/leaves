@@ -35,9 +35,6 @@ module.exports = function (grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     srcDir: 'assets/',
-    jshint: {
-      all: srcFiles
-    },
     concat: {
       options: {
           banner: banner
@@ -81,7 +78,7 @@ module.exports = function (grunt) {
   });
   // Registered asks.
   grunt.registerTask('css_task', ['less']);
-  grunt.registerTask('js_task', ['jshint','concat', 'asciify']);
+  grunt.registerTask('js_task', ['concat', 'asciify']);
   grunt.registerTask('default', ['less']);
 
 };
