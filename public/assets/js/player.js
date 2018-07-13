@@ -73,34 +73,37 @@ var leaves = (function($, app){
       if (!this.hasItem(theItems[0], this.containedItems) || !this.hasItem(theItems[1], this.containedItems)) {
         return 'You don\'t have one or more items needed to craft that';
       }
-      if (theItems[0].combineWith == theItems[1].descriptor[0]){
-        var numItems = Object.keys(itemLibrary).length;
-        //loop through the items library and push the made item to the players inventory
-        for (var i = numItems - 1; i >= 2; i--) {
-          var libraryItem = itemLibrary[Object.keys(itemLibrary)[i]];
-          var itemComprisedOf = libraryItem.comprisedOf.map(function(item){
-            return item.descriptor[0];
-          }).sort().join();
-          
-          var theseItems = theItems.map(function(item){
-            return item.descriptor[0]
-          }).sort().join();
-          if (itemComprisedOf == theseItems){
-            this.containedItems.push(libraryItem);
-            if (theItems[0].saveOnCombine === false) {
-              var index1 = this.containedItems.indexOf(theItems[0]);
-              this.containedItems.splice(index1, 1);
+      var that = this;
+      var message = 'You made nothing.';
+      theItems[0].combineWith.forEach(function(combineWithString){
+        if (combineWithString == theItems[1].descriptor[0]){
+          var numItems = Object.keys(itemLibrary).length;
+          //loop through the items library and push the made item to the players inventory
+          for (var i = numItems - 1; i >= 2; i--) {
+            var libraryItem = itemLibrary[Object.keys(itemLibrary)[i]];
+            var itemComprisedOf = libraryItem.comprisedOf.map(function(item){
+              return item.descriptor[0];
+            }).sort().join();
+            
+            var theseItems = theItems.map(function(item){
+              return item.descriptor[0]
+            }).sort().join();
+            if (itemComprisedOf == theseItems){
+              that.containedItems.push(libraryItem);
+              if (theItems[0].saveOnCombine === false) {
+                var index1 = that.containedItems.indexOf(theItems[0]);
+                that.containedItems.splice(index1, 1);
+              }
+              if (theItems[1].saveOnCombine === false) {
+                var index2 = that.containedItems.indexOf(theItems[1]);
+                that.containedItems.splice(index2, 1);
+              }
+              message = "you made a item";
             }
-            if (theItems[1].saveOnCombine === false) {
-              var index2 = this.containedItems.indexOf(theItems[1]);
-              this.containedItems.splice(index2, 1);
-            }
-            return "you made a item";
           }
         }
-      }else{
-        return "You made nothing";
-      }
+      });
+    return message;
     },
     disassemble:function(){
       //check to see if item is comprised of other items (are there items in the comprisedOf array)

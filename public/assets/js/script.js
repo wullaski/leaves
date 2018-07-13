@@ -4,7 +4,7 @@
  * Copyright (c) 2014-2018, John Woolschlager
  * http://woolschlager.com/
  *
- * Compiled: 2018-07-09
+ * Compiled: 2018-07-13
  *
  */
 // var leaves = (function(app){
@@ -291,34 +291,37 @@ var leaves = (function($, app){
       if (!this.hasItem(theItems[0], this.containedItems) || !this.hasItem(theItems[1], this.containedItems)) {
         return 'You don\'t have one or more items needed to craft that';
       }
-      if (theItems[0].combineWith == theItems[1].descriptor[0]){
-        var numItems = Object.keys(itemLibrary).length;
-        //loop through the items library and push the made item to the players inventory
-        for (var i = numItems - 1; i >= 2; i--) {
-          var libraryItem = itemLibrary[Object.keys(itemLibrary)[i]];
-          var itemComprisedOf = libraryItem.comprisedOf.map(function(item){
-            return item.descriptor[0];
-          }).sort().join();
-          
-          var theseItems = theItems.map(function(item){
-            return item.descriptor[0]
-          }).sort().join();
-          if (itemComprisedOf == theseItems){
-            this.containedItems.push(libraryItem);
-            if (theItems[0].saveOnCombine === false) {
-              var index1 = this.containedItems.indexOf(theItems[0]);
-              this.containedItems.splice(index1, 1);
+      var that = this;
+      var message = 'You made nothing.';
+      theItems[0].combineWith.forEach(function(combineWithString){
+        if (combineWithString == theItems[1].descriptor[0]){
+          var numItems = Object.keys(itemLibrary).length;
+          //loop through the items library and push the made item to the players inventory
+          for (var i = numItems - 1; i >= 2; i--) {
+            var libraryItem = itemLibrary[Object.keys(itemLibrary)[i]];
+            var itemComprisedOf = libraryItem.comprisedOf.map(function(item){
+              return item.descriptor[0];
+            }).sort().join();
+            
+            var theseItems = theItems.map(function(item){
+              return item.descriptor[0]
+            }).sort().join();
+            if (itemComprisedOf == theseItems){
+              that.containedItems.push(libraryItem);
+              if (theItems[0].saveOnCombine === false) {
+                var index1 = that.containedItems.indexOf(theItems[0]);
+                that.containedItems.splice(index1, 1);
+              }
+              if (theItems[1].saveOnCombine === false) {
+                var index2 = that.containedItems.indexOf(theItems[1]);
+                that.containedItems.splice(index2, 1);
+              }
+              message = "you made a item";
             }
-            if (theItems[1].saveOnCombine === false) {
-              var index2 = this.containedItems.indexOf(theItems[1]);
-              this.containedItems.splice(index2, 1);
-            }
-            return "you made a item";
           }
         }
-      }else{
-        return "You made nothing";
-      }
+      });
+    return message;
     },
     disassemble:function(){
       //check to see if item is comprised of other items (are there items in the comprisedOf array)
@@ -506,12 +509,14 @@ var leaves = (function ($, app) {
     items.runeStone = new app.Item({
       descriptor : ["rune"],
       sightDescription : "It is a stone with a rune carved in it. It probably has hidden power.",
-      physicalSize: 1
+      physicalSize: 1,
+      combineWith: ["keensword"]
     });
     items.stone = new app.Item({
       descriptor : ["stone", "flagstone", "rock"],
       physicalSize : 1,
-      combineWith : "sword"
+      combineWith : ["sword"],
+      saveOnCombine : true,
     });
     items.steel = new app.Item({
       descriptor : ["steel"],
@@ -563,7 +568,7 @@ var leaves = (function ($, app) {
       touch : "They feel light and you feel agile, like a cat. (agility +2).",
       physicalSize : 3,
       capacity : 2,
-      combineWith: "keensword",
+      combineWith: ["keensword"],
     });
     items.sword = new app.Item({
       descriptor : ["sword"],
@@ -571,7 +576,7 @@ var leaves = (function ($, app) {
       sightDescription : "The blade is pitted with age.",
       touch: "You carefully rub your thumb across different points on the blade. It would benefit from a good sharpening, but it does look like quality steel.",
       physicalSize: 24,
-      combineWith: "stone"
+      combineWith: ["stone"]
     });
     items.keenSword = new app.Item({
       descriptor : ["keensword"],
@@ -580,7 +585,7 @@ var leaves = (function ($, app) {
       sightDescription: "It's a standard short sword, double bladed and made for slashing.",
       physicalSize: 24,
       comprisedOf: [items.sword, items.stone],
-      combineWith: "capris",
+      combineWith: ["capris", "rune"],
       saveOnCombine: true
     });
     items.shorts = new app.Item({
@@ -598,16 +603,12 @@ var leaves = (function ($, app) {
       ambientLight : 10,
       containedItems : [items.puddle],
       visualSecretThreshold : 5,
-      visualSecret : "There is some writing on the wall. Scratched into the stone, it reads: He who is valiant and pure of spirit, may find the holy grail in the castle of... aaaaaauuuuggghh",
-      sightDescription : "You are in a small 10'x10' room with roughly hewn stone walls joined together flawlessly without mortar. The floor is of the same material but larger and smoother tiles. There are no obvious exits except for a large iron door.",
+      visualSecret : "There is some writing scratched into the wall. Faint but clear. \"Don't climb you'll never make it.\"",
+      sightDescription : "You are in a small room with roughly hewn stone walls joined together without mortar. No doors, no windows, just cold stone walls. The floor is of the same stone but larger and smoother tiles. If there is a roof you cannot tell as there is only darkness above you.",
       sounds : "drip... drip... drip... The dripping noise is slow and even. It sounds as though droplets are falling into a small puddle nearby.",
       touch : "It's cool where you are. You feel solid and cold stone beneath your feet.",
       smells : "You smell something that reminds you of lamp oil."
     });
-    // var room2 = new app.Room({
-    //   descriptor : ["room2"],
-    //   containedItems : [items.stone]
-    // });
     
     //Create Player
     var currentPlayer = new app.Player(
