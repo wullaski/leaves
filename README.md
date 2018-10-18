@@ -1,8 +1,30 @@
 leaves
 ======
 
-using the move command will move the player from one room to another. A room is just another container. It's a special container.
+**Getting Started**
 
-remove player object from room
+Navigate to the public directory and install dependencies with npm.
 
-add player to adjoining room.
+``` 
+$ npm install
+```
+
+Install Grunt Globally
+
+```
+$ npm install -g grunt-cli
+```
+
+Run grunt watch for development. See Gruntfile.js for other commands.
+
+```
+$ grunt watch
+```
+
+
+**Todo**
+
+- [ ] Add a move function that moves a player to another room
+- [ ] Add multiplayer with firebase
+- [ ] Add more items
+- [ ] Add lock and key functionality
