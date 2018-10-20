@@ -109,6 +109,57 @@ var leaves = (function ($, app) {
       containedItems: [],
       comprisedOf: [items.keenSword, items.capris],
     });
+    items.soap = new app.Item({
+      descriptor: ['soap'],
+      getting: "You pick up a discolored bar of soap.",
+      sightDescription: "Slightly softened and soiled as if well-loved by its previous owner.",
+      tastes : "You probably don't want to do that.",
+      smells : "It smells like a fragrant Irish spring.",
+      touch : "It feels like a slippery wet fish. Better hold on tight.",
+      combineWith: ["capris", "shorts", "handkerchief", "bandanna"],
+      physicalSize: 2
+    });
+    items.handkerchief = new app.Item({
+      descriptor: ['handkerchief'],
+      sightDescription : "A 12-inch square of red fabric with an intricate pattern printed on it.",
+      tastes : "It tastes how you would imagine boogers taste. It could stand to be cleaned.",
+      smells : "It smells like dirty feet. It could stand to be cleaned.",
+      touch : "Greasy and gritty. It could stand to be cleaned.",
+      physicalSize : 3,
+      capacity : 1,
+      combineWith: ["soap"],
+    });
+    items.bandanna = new app.Item({
+      descriptor: ['bandanna'],
+      getting: "Now that it's clean, your handkerchief would make a stylish fashion accessory.",
+      sightDescription : "Tied around the neck or done up as a doo-rag. The possibilities are endless.",
+      tastes : "It tastes like a fragrant Irish spring.",
+      smells : "It smells like a fragrant Irish spring.",
+      physicalSize : 3,
+      comprisedOf: [items.handkerchief, items.soap]
+    });
+    items.canteen = new app.Item({
+      descriptor: ['canteen'],
+      sightDescription: "A small stainless steel vessel and cap with the letters 'XXX' crudely etched onto one side.",
+      sounds : "A metallic ping reverberates from inside. It's probably empty.",
+      tastes : "There's not so much as a drop of liquid to be found. It tastes a little like stale air.",
+      smells : "It smells a little musty. It's probably been empty for a while.",
+      touch : "Sleek and rigid, this thing has some heft to it.",
+      physicalSize: 5,
+      combineWith: ["puddle"],
+      containedItems: []
+    });
+    items.canteen2 = new app.Item({
+      descriptor: ['canteen2'],
+      sightDescription: "A small stainless steel vessel and cap with the letters 'XXX' crudely etched onto one side.",
+      sounds : "You hear a slight whooshing sound as the puddle water sloshes around inside.",
+      tastes : "It tastes like burning.",
+      smells : "The noxious smelling liquid in the canteen leaves you feeling light headed.",
+      touch : "Sleek and rigid, this thing has some heft to it.",
+      physicalSize: 5,
+      containedItems : [items.puddle]
+    });
+
     //Create Room Object passing descriptions and items in
     var currentRoom = new app.Room({
       descriptor : ["room","cell","area","here"],
