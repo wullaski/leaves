@@ -32,5 +32,5 @@ See Gruntfile.js for other commands.
 
 - [ ] Add a move function that moves a player to another room
 - [ ] Add multiplayer with firebase
-- [ ] Add more items
+- [X] Add more items
 - [ ] Add lock and key functionality
