@@ -34,3 +34,4 @@ See Gruntfile.js for other commands.
 - [ ] Add multiplayer with firebase
 - [X] Add more items
 - [ ] Add lock and key functionality
+- [ ] Add a known items array to the player object
